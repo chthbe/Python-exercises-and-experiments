@@ -29,6 +29,7 @@ test_data = pd.read_csv('C:\\Users\\Becks\\Desktop\\test_test.csv', low_memory=F
 """
 
 # Keeping only data that is needed as input
+outcome = training_data['KEYWORD'].values
 training_data = training_data [['BIRTH_YEAR', 'DATE', 'TRANS_AMO', 'MRCH_CITY', 'MRCH_CTRY', 'SEX', 'TRANSTYP_CODE']]
 
 # Create the clean input data as an empty list to which the arrays of data are added consequently
@@ -133,8 +134,30 @@ for i in training_data.keys():
         c_training.append(np.array([int(x not in imp_cat) for x in temp]))
         c_test.append(np.array([int(x not in imp_cat) for x in temp_test]))
 
+# Normalise the data sets
 
-#print(c_training)
+# For all arrays in the data sets deduce the mean and divide by the standard deviation, replace nan with 0
+for i in range(len(c_training)):
+    print(i, np.nanstd(c_training[i]))
+    c_training[i] = np.array([(np.nan_to_num(x) - np.nanmean(c_training[i])) / np.nanstd(c_training[i]) for x in c_training[i]])
+
+# Categories outcome vector of training data
+c_outcomes = []
+
+# Get unique categories, taken only from training set as unknown categories from test set cannot be trained through the model
+unique_cat = np.unique(outcome).tolist()
+print(unique_cat)
+
+# Drop empty categories
+if ' ' in unique_cat:
+    unique_cat.remove(' ')
+
+# For all unique categories, add a vector that is 1 if an event belongs to the category or 0 otherwise
+for uc in unique_cat:
+    c_outcomes.append(np.array([int(x == uc) for x in outcome]))
+            
+# Split the training set into an actual training and a validation set
+
 
 """
 import network3 # this includes the neural network class
